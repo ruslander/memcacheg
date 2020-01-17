@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"math/rand"
 	"net"
-	"strconv"
 )
 
 func main() {
@@ -19,12 +19,24 @@ func main() {
 	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
 	defer conn.Close()
 
+	msg := "msg#" + RandStringRunes(*messageSize)
+
 	for i := 0; i < *messagesCount; i++ {
-		msg := "msg#" + strconv.Itoa(i)
+
 		fmt.Println("Send: ", msg)
 		fmt.Fprintf(conn, msg + "\n")
 
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 		fmt.Println("Receive: "+message)
 	}
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
