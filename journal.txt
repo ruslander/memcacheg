@@ -1,2 +1,4 @@
+4.  added end to end shell example
+3.  tcp client server
 2.  support cli args message count and size
 1.  build multiple binaries

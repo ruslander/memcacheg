@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"net"
+	"strconv"
 )
 
 func main() {
@@ -13,7 +16,15 @@ func main() {
 
 	fmt.Print("workload of ", *messagesCount ," messages of size ", *messageSize)
 
+	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
+	defer conn.Close()
+
 	for i := 0; i < *messagesCount; i++ {
-		fmt.Println("send ", i)
+		msg := "msg#" + strconv.Itoa(i)
+		fmt.Println("Send: ", msg)
+		fmt.Fprintf(conn, msg + "\n")
+
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+		fmt.Println("Receive: "+message)
 	}
 }
