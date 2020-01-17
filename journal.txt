@@ -1,1 +1,2 @@
-1. build multiple binaries
+2.  support cli args message count and size
+1.  build multiple binaries
