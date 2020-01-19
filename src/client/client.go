@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"transport"
 )
 
 func main() {
@@ -18,6 +19,9 @@ func main() {
 
 	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
 	defer conn.Close()
+
+	rt := transport.New()
+	fmt.Println(rt)
 
 	msg := "msg#" + RandStringRunes(*messageSize)
 
