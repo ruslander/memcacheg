@@ -1,3 +1,4 @@
+6.  add and reference a package
 5.  added message size test
 4.  added end to end shell example
 3.  tcp client server
