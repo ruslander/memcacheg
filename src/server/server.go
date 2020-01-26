@@ -1,12 +1,18 @@
 package main
 
-import "net"
+import (
+	"log"
+	"net"
+	"os"
+)
 import "fmt"
 import "bufio"
 
 func main() {
 
-	fmt.Println("Launching server...")
+	logger := log.New(os.Stdout, "sr ", log.Lmicroseconds)
+
+	logger.Println("Launching server...")
 
 	ln, _ := net.Listen("tcp", ":8081")
 
@@ -15,21 +21,21 @@ func main() {
 		if err != nil {
 			// handle error
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, logger)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, logger *log.Logger) {
 	for {
 		message, err := bufio.NewReader(conn).ReadString('\n')
 
 		if err != nil {
 			conn.Close()
-			fmt.Println("Error, connection closed")
+			logger.Println("Error, connection closed")
 			return
 		}
 
-		fmt.Print("Message Received: ", message)
-		fmt.Fprintf(conn, message, "\n")
+		logger.Print("Message Received: ", message)
+		fmt.Fprintf(conn, message)
 	}
 }

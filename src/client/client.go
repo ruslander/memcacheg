@@ -1,37 +1,40 @@
 package main
 
 import (
-	"bufio"
 	"flag"
-	"fmt"
+	"log"
 	"math/rand"
-	"net"
+	"os"
+	"strings"
+	"time"
 	"transport"
 )
 
+var messagesCount = flag.Int("messages", 100, "messages to send over")
+var messageSize = flag.Int("size", 100, "message size in bytes")
+
 func main() {
-	var messagesCount = flag.Int("messages", 100, "messages to send over")
-	var messageSize = flag.Int("size", 100, "message size in bytes")
+
+	logger := log.New(os.Stdout, "cl ", log.Lmicroseconds)
 
 	flag.Parse()
+	logger.Print("workload of ", *messagesCount ," messages of size ", *messageSize)
 
-	fmt.Print("workload of ", *messagesCount ," messages of size ", *messageSize)
-
-	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
-	defer conn.Close()
-
-	rt := transport.New()
-	fmt.Println(rt)
+	link := transport.New("127.0.0.1:8081")
+	defer link.Close()
 
 	msg := "msg#" + RandStringRunes(*messageSize)
 
 	for i := 0; i < *messagesCount; i++ {
+		logger.Println("Send: ", msg)
 
-		fmt.Println("Send: ", msg)
-		fmt.Fprintf(conn, msg + "\n")
+		start := time.Now()
+		link.Send(msg)
 
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Println("Receive: "+message)
+		message := link.Receive()
+		elapsed := time.Since(start)
+
+		logger.Printf("Receive: " + strings.TrimSuffix(message, "\n") + " " + elapsed.String())
 	}
 }
 
