@@ -10,6 +10,7 @@ bin/*
 pkg
 
 src/github.com
+pf
 
 # Test binary, built with `go test -c`
 *.test

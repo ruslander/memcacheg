@@ -6,13 +6,14 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"strings"
 	"time"
 	"transport"
 )
 
 var messagesCount = flag.Int("messages", 100, "messages to send over")
 var messageSize = flag.Int("size", 100, "message size in bytes")
+var serverIp = flag.String("server", "127.0.0.1", "server Ip address")
+var serverPort = flag.String("port", "8081", "server port")
 
 func main() {
 
@@ -21,7 +22,7 @@ func main() {
 	flag.Parse()
 	logger.Print("workload of ", *messagesCount ," messages of size ", *messageSize)
 
-	link := transport.New("127.0.0.1:8081")
+	link := transport.New(*serverIp + ":" + *serverPort)
 	defer link.Close()
 
 	msg := "msg#" + RandStringRunes(*messageSize)
@@ -34,19 +35,19 @@ func main() {
 		start := time.Now()
 		link.Send(msg)
 
-		message := link.Receive()
+		link.Receive()
 		elapsed := time.Since(start)
 
 		hist.RecordValue(elapsed.Microseconds())
 
-		logger.Printf("Receive: " + strings.TrimSuffix(message, "\n") + " " + elapsed.String())
+		//logger.Printf("Receive: " + strings.TrimSuffix(message, "\n") + " " + elapsed.String())
 	}
 
 	printSummary(hist, logger)
 }
 
 func printSummary(hist *hdrhistogram.Histogram, logger *log.Logger) {
-	logger.Printf("%5s, %10s, %5s", "Value", "Quantile", "TotalCount")
+	logger.Printf("%5s, %10s, %5s", "Value", "Percentile", "TotalCount")
 
 	for _, s := range hist.CumulativeDistribution() {
 		logger.Printf("%5d, %10.2f, %9d", s.ValueAt, s.Quantile, s.Count)

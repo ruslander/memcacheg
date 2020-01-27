@@ -1,22 +1,16 @@
 #!/bin/bash
 
-minArg=$2
-maxArg=$4
-step=64
-
-echo "Workloads from $minArg to $maxArg"
-
-for i in 10 100 1000 10000 100000;
+for i in 10 100 300 500 900 1200 1500 1800 2000;
 do
-  sizeOfPayload=$((1000*1024*1024/$i))
+  sizeOfPayload=$i
 
   echo ""
-  echo "Workload $i $sizeOfPayload"
+  echo "Workload message size $i (bytes)"
 
   ./bin/server > /dev/null 2>&1 &
   SERVER_PID=$!
 
-  time ./bin/client -messages=200 -size=$sizeOfPayload > /dev/null 2>&1
+  time ./bin/client -messages=200 -size=$sizeOfPayload -server 127.0.0.1 -port 8081
 
   kill -9 $SERVER_PID
 
