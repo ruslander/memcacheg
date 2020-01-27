@@ -29,24 +29,22 @@ func main() {
 
 	hist := hdrhistogram.New(1, 1000, 2)
 
-	for i := 0; i < *messagesCount; i++ {
-		//logger.Println("Send: ", msg)
 
+	for i := 0; i < *messagesCount; i++ {
 		start := time.Now()
 		link.Send(msg)
 
 		link.Receive()
-		elapsed := time.Since(start)
+		duration := time.Since(start)
 
-		hist.RecordValue(elapsed.Microseconds())
-
-		//logger.Printf("Receive: " + strings.TrimSuffix(message, "\n") + " " + elapsed.String())
+		hist.RecordValue(duration.Microseconds())
 	}
 
 	printSummary(hist, logger)
 }
 
 func printSummary(hist *hdrhistogram.Histogram, logger *log.Logger) {
+	logger.Printf("Latency distribution (usec)")
 	logger.Printf("%5s, %10s, %5s", "Value", "Percentile", "TotalCount")
 
 	for _, s := range hist.CumulativeDistribution() {
@@ -55,6 +53,8 @@ func printSummary(hist *hdrhistogram.Histogram, logger *log.Logger) {
 
 	logger.Printf("Min = %d, Max = %d , Mean = %f, StdDeviation = %f",
 		hist.Min(), hist.Max(), hist.Mean(), hist.StdDev())
+
+	logger.Printf("Throughput %5.1f op/sec,", (1000000)/hist.Mean())
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

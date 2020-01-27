@@ -1,3 +1,4 @@
+9   report latency and throughput
 8   track performance with histograms
 7   reference a github package with go get install
 6.  add and reference a package
