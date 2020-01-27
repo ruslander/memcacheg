@@ -35,7 +35,7 @@ func handleConnection(conn net.Conn, logger *log.Logger) {
 			return
 		}
 
-		logger.Print("Message Received: ", message)
+		//logger.Print("Message Received: ", message)
 		fmt.Fprintf(conn, message)
 	}
 }

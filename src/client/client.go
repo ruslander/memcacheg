@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/codahale/hdrhistogram"
 	"log"
 	"math/rand"
 	"os"
@@ -25,8 +26,10 @@ func main() {
 
 	msg := "msg#" + RandStringRunes(*messageSize)
 
+	hist := hdrhistogram.New(1, 1000, 2)
+
 	for i := 0; i < *messagesCount; i++ {
-		logger.Println("Send: ", msg)
+		//logger.Println("Send: ", msg)
 
 		start := time.Now()
 		link.Send(msg)
@@ -34,11 +37,28 @@ func main() {
 		message := link.Receive()
 		elapsed := time.Since(start)
 
+		hist.RecordValue(elapsed.Microseconds())
+
 		logger.Printf("Receive: " + strings.TrimSuffix(message, "\n") + " " + elapsed.String())
 	}
+
+	printSummary(hist, logger)
+}
+
+func printSummary(hist *hdrhistogram.Histogram, logger *log.Logger) {
+	logger.Printf("%5s, %10s, %5s", "Value", "Quantile", "TotalCount")
+
+	for _, s := range hist.CumulativeDistribution() {
+		logger.Printf("%5d, %10.2f, %9d", s.ValueAt, s.Quantile, s.Count)
+	}
+
+	logger.Printf("Min = %d, Max = %d , Mean = %f, StdDeviation = %f",
+		hist.Min(), hist.Max(), hist.Mean(), hist.StdDev())
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+
 
 func RandStringRunes(n int) string {
 	b := make([]rune, n)

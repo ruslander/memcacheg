@@ -9,6 +9,7 @@ bin/*
 .idea
 pkg
 
+src/github.com
 
 # Test binary, built with `go test -c`
 *.test
